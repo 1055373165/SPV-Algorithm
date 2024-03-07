@@ -229,6 +229,7 @@ func getMerkleProof_BTCRelay(data [][]byte, index int) MerkleProof {
 }
 
 func getMerkleProof_New(data [][]byte, hash []byte, index int) (MerkleProof, error) { //从full node那里获取getMerkleBranch
+	// 1. 先比较是否相等，不相等直接退出
 	if !reflect.DeepEqual(data[index], hash) {
 		return MerkleProof{}, errors.New("DeepEqual 验证失败")
 	}
@@ -241,7 +242,7 @@ func getMerkleProof_New(data [][]byte, hash []byte, index int) (MerkleProof, err
 			hash1, hash2 := data[j], data[int(math.Min(float64(j+1), float64(len(data)-1)))]
 			temp := sha256.Sum256(append(hash1, hash2...))
 			newTree[j/2] = temp[:]
-
+			// 2. 无需一个个比较，直接判断是否已经计算到 index 处即可
 			if j == index {
 				merkle_sibling = append(merkle_sibling, hash2)
 			} else if j+1 == index {
